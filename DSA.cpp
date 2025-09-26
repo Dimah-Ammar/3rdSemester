@@ -92,7 +92,7 @@ void DeQueue_SLL ();
 void Display_QueueD ();
 void EnQueue_DLL ();
 void DeQueue_DLL ();
-int A[10] , size = 10, NA=0, K , LB=0, Item, B[10]={1,9,7,3,11,5,17,15,19,13}, NB=0, C[20], NC=0, low, high, mid , top=0, R, F, st[10], SQ[10] , CQ[10],chll,SItem; //Left[10] , Right[10];
+int A[10] , size = 10, NA=0, K , LB=0, Item, B[10]={1,9,7,3,11,5,17,15,19,13}, NB=0, C[20], NC=0, low, high, mid , top=0, R=-1, F=-1,RS=-1, FS=-1,RC=-1, FC=-1, st[10], SQ[10] , CQ[10],chll,SItem; //Left[10] , Right[10];
 
 using namespace std;
 int main()
@@ -1303,32 +1303,24 @@ int PartitionA (int A[], int Low, int High)
 	int Pivot=A[Low];
 	int i=Low+1;
 	int j=High;
-	while (i<j)
+	while (true) 
 	{
-    	while ((i<=High)&&(A[i]<=Pivot))
-    	{
-		i=i+1;
-    	}
-    	while (A[j]>Pivot)
-    	{
-    		j=j-1;
-		}
-	    if (i<j)
-	    {
-	    	int t;
-	    	A[j]=t;
-	    	A[j]=A[i];
-	    	A[i]=t;
-		}
-		else
-		{
-		 int s;
-		 A[Low]=s;
-		 A[Low]=A[j];
-		 A[j]=s;
-		}
-   }
-   return (j);
+        while (i <= High && A[i] <= Pivot) i++;
+        while (j >= Low && A[j] > Pivot) j--;
+
+        if (i < j) {
+            int t = A[i];
+            A[i] = A[j];
+            A[j] = t;
+        } else {
+            break;
+        }
+    }
+    	int s = A[Low];
+    A[Low] = A[j];
+    A[j] = s;
+
+    return j;  // new pivot index
 }
 //Quick Sort for Descending order
 void QuickSort_SubD(int A[], int Low, int High)
@@ -1351,32 +1343,31 @@ int PartitionD (int A[], int low, int high)
 	int Pivot=A[low];
 	int i=low+1;
 	int j=high;
-	while (i<j)
-	{
-    	while ((i<=high)&&(A[i]>=Pivot))
-    	{
-		i=i+1;
-    	}
-    	while (A[j]<Pivot)
-    	{
-    		j=j-1;
-		}
-	    if (i<j)
-	    {
-	    	int t;
-	    	A[j]=t;
-	    	A[j]=A[i];
-	    	A[i]=t;
-		}
-		else
-		{
-		 int s;
-		 A[low]=s;
-		 A[low]=A[j];
-		 A[j]=s;
-		}
-   }
-   return j;
+	while (true)
+    {
+        // Move i forward until you find element smaller than Pivot
+        while (i <= high && A[i] >= Pivot) i++;
+
+        // Move j backward until you find element greater than Pivot
+        while (j >= low && A[j] < Pivot) j--;
+
+        if (i < j) {
+            // swap A[i] and A[j]
+            int t = A[i];
+            A[i] = A[j];
+            A[j] = t;
+        }
+		else {
+            break;
+        }
+    }
+
+    // place pivot at its correct position
+    int s = A[low];
+    A[low] = A[j];
+    A[j] = s;
+
+    return j;   // return pivot index
 }
 // Insertion in Stack 
 void Push (int st[], int LB, int Size, int& top, int Item)
@@ -1412,50 +1403,50 @@ void Pop (int st[], int LB, int& top, int Item)
 	} 
 }
 // Simple Queue Insertion
-void SQueue_Insert(int SQ[], int LB, int size, int& F, int& R, int Item)
+void SQueue_Insert(int SQ[], int LB, int size, int& FS, int& RS, int Item)
 {
-	if (R==size+LB-1)
+	if (RS==size+LB-1)
 	{
 		cout<<"\nNo more insertion is possible in Queue";
 		return;
 	}
-	if (R==LB-1)
+	if (RS==LB-1)
 	{
-		R=LB;
-		F=LB;
+		RS=LB;
+		FS=LB;
 	}
 	else
 	{
-		R=R+1;
+		RS=RS+1;
 	}
-	SQ[R]=Item;
+	SQ[RS]=Item;
    	cout<<"now elements in Queue are: ";
-    for(int i=F+1;i<=R;i++)
+    for(int i=FS+1;i<=RS;i++)
 	{
 		cout<<SQ[i]<<"\t";
     }
     
 }
 // Simple Queue Deletion
-void SQueue_Delete(int SQ[], int LB, int& F, int& R, int Item )
+void SQueue_Delete(int SQ[], int LB, int& FS, int& RS, int Item )
 {
-	if (F==LB-1)
+	if (FS==LB-1)
 	{
 		cout<<"\nQueue is Empty";
 		return;
 	}
-	SQ[F]=Item;
-	if (F==R)
+	SQ[FS]=Item;
+	if (FS==RS)
 	{
-		F=LB-1;
-		R=LB-1;
+		FS=LB-1;
+		RS=LB-1;
 	}
 	else
 	{
-		F=F+1;
+		FS=FS+1;
 	}
 	cout<<"now elements in Queue are: ";
-    for(int i=F+1;i<=R;i++)
+    for(int i=FS+1;i<=RS;i++)
 	{
 		cout<<SQ[i]<<"\t";
     }
@@ -1463,58 +1454,58 @@ void SQueue_Delete(int SQ[], int LB, int& F, int& R, int Item )
 }
 
 // Circular Queue Insertion
-void CQueue_Insert (int CQ[], int LB, int& R, int& F, int size, int Item)
+void CQueue_Insert (int CQ[], int LB, int& RC, int& FC, int size, int Item)
 {
-	if (((R==size+LB-1)&&(F==LB))||(R==F-1))
+	if (((RC==size+LB-1)&&(FC==LB))||(RC==F-1))
 	{
 		cout<<"\nNo more Insertion is possible\n";
 		return;
 	}
-	if (R==LB-1)
+	if (RC==LB-1)
     {
-    	R=LB;
-    	F=LB;
+    	RC=LB;
+    	FC=LB;
 	}
-	  else if (R==size+LB-1)
+	  else if (RC==size+LB-1)
     	{
-	    	R=LB;
+	    	RC=LB;
 	    }
 	  else
 	   {
-		   R=R+1;
+		   RC=RC+1;
 	   }
-	CQ[R]=Item;
+	CQ[RC]=Item;
 	cout<<"now elements in Queue are\n";
-    for(int i=F;i<=R;i++)
+    for(int i=FC;i<=RC;i++)
 	{
 		cout<<CQ[i]<<"\t";
     }
 }
 // Circular Queue_Deletion
 
-void CQueue_Delete (int CQ[], int LB, int& R, int& F, int Item)
+void CQueue_Delete (int CQ[], int LB, int& RC, int& FC, int Item)
 {
-	if (F==LB-1)
+	if (FC==LB-1)
 	{
 		cout<<"\nQueue is Empty\n";
 		return;
 	}
-	CQ[F]=Item;
-	if (R==F)
+	CQ[FC]=Item;
+	if (RC==FC)
 	{
-		R=LB-1;
-		F=LB-1;
+		RC=LB-1;
+		FC=LB-1;
 	}
-	 else if (F==size+LB-1)
+	 else if (FC==size+LB-1)
 	 {
-	 	F=LB;
+	 	FC=LB;
 	 }
 	  else 
 	  {
-	  	F=F+1;
+	  	FC=FC+1;
 	  }
 	  cout<<"now elements in Queue are\n";
-    for(int i=F;i<=R;i++)
+    for(int i=FC;i<=RC;i++)
 	{
 		cout<<CQ[i]<<"\t";
     }
@@ -2403,6 +2394,10 @@ void DeQueue_DLL ()
 		if (dll_F!=NULL)
 		{
 			dll_F->prev=NULL;
+		}
+		else
+		{
+			dll_R=NULL;
 		}
 		delete (ptr);
 	}
